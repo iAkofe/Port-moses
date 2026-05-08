@@ -50,113 +50,6 @@
 }
 
 
-
-// ── MICRO INTERACTIONS ─────────────────────────────────────────
-
-// 1. Scroll progress bar
-const bar = document.createElement('div');
-bar.id = 'progress-bar';
-document.body.prepend(bar);
-window.addEventListener('scroll', () => {
-  const pct = (scrollY / (document.body.scrollHeight - innerHeight)) * 100;
-  bar.style.width = pct + '%';
-}, { passive: true });
-
-// 2. Active nav on scroll
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-links a');
-const activateNav = () => {
-  let current = '';
-  sections.forEach(s => {
-    if (scrollY >= s.offsetTop - 120) current = s.id;
-  });
-  navLinks.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
-  });
-};
-window.addEventListener('scroll', activateNav, { passive: true });
-
-// 3. Number count-up animation
-function countUp(el, target, duration = 1200) {
-  const isFloat = target % 1 !== 0;
-  const start = performance.now();
-  const update = (now) => {
-    const elapsed = now - start;
-    const progress = Math.min(elapsed / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3);
-    const val = target * ease;
-    el.textContent = isFloat ? val.toFixed(1) : Math.floor(val);
-    if (progress < 1) requestAnimationFrame(update);
-    else el.textContent = el.dataset.target;
-  };
-  requestAnimationFrame(update);
-}
-
-const numObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const el = e.target;
-    const raw = el.dataset.target;
-    const num = parseFloat(raw);
-    if (!isNaN(num) && num > 0) countUp(el, num);
-    numObserver.unobserve(el);
-  });
-}, { threshold: 0.5 });
-
-document.querySelectorAll('.num-n, .stat-n').forEach(el => {
-  const txt = el.textContent.replace(/[^0-9.]/g, '');
-  const num = parseFloat(txt);
-  if (!isNaN(num) && num > 1) {
-    el.dataset.target = el.textContent;
-    el.dataset.raw = num;
-    numObserver.observe(el);
-  }
-});
-
-// 4. Skill pill ripple
-document.querySelectorAll('.pill').forEach(pill => {
-  pill.addEventListener('click', e => {
-    const r = document.createElement('span');
-    r.className = 'pill-ripple';
-    const size = Math.max(pill.offsetWidth, pill.offsetHeight);
-    r.style.cssText = `width:${size}px;height:${size}px;left:${e.offsetX - size/2}px;top:${e.offsetY - size/2}px`;
-    pill.appendChild(r);
-    setTimeout(() => r.remove(), 500);
-  });
-});
-
-// 5. Stagger child reveals on work/awards/rec grids
-const staggerObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const children = e.target.querySelectorAll('.wc, .aw, .bc, .rec-card, .inn-card');
-    children.forEach((child, i) => {
-      child.classList.add('stagger-child');
-      setTimeout(() => child.classList.add('in'), i * 80);
-    });
-    staggerObs.unobserve(e.target);
-  });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.work-grid, .awards-grid, .rec-grid, .beyond-grid, .inn-grid, .num-grid').forEach(g => {
-  staggerObs.observe(g);
-});
-
-// 6. Magnetic buttons
-document.querySelectorAll('.btn-solid, .btn-fill, .nav-btn, .cbtn.primary, .tl-hire-btn').forEach(btn => {
-  btn.addEventListener('mousemove', e => {
-    const rect = btn.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
-  });
-  btn.addEventListener('mouseleave', () => {
-    btn.style.transform = '';
-    btn.style.transition = 'transform .4s cubic-bezier(.16,1,.3,1)';
-    setTimeout(() => btn.style.transition = '', 400);
-  });
-});
-
 </script>
 <title>Moses Afolabi | AI Product Manager | CPaaS, FinTech & SaaS | Lagos, Nigeria</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
@@ -169,62 +62,11 @@ body {
   line-height: 1.7; overflow-x: hidden; cursor: none;
 }
 
-
-/* MICRO INTERACTIONS */
-
-/* 1. Scroll progress bar */
-#progress-bar { position:fixed; top:0; left:0; height:2px; background:#fff; z-index:9999; width:0%; transition:width .1s linear; }
-
-/* 2. Magnetic button effect handled in JS */
-
-/* 3. Skill pill ripple */
-.pill { position:relative; overflow:hidden; }
-.pill-ripple { position:absolute; border-radius:50%; background:rgba(0,0,0,.15); transform:scale(0); animation:ripple-out .5s ease; pointer-events:none; }
-@keyframes ripple-out { to { transform:scale(4); opacity:0; } }
-
-/* 4. Stagger children reveal */
-.stagger-child { opacity:0; transform:translateY(16px); transition:opacity .5s ease, transform .5s ease; }
-.stagger-child.in { opacity:1; transform:none; }
-
-/* 5. Active nav link */
-.nav-links a.active { color:#fff; }
-
-/* 6. Number count-up handled in JS */
-
-/* 7. Card lift on work cards */
-.wc { transition:background .35s, transform .3s cubic-bezier(.16,1,.3,1); }
-.wc:hover { transform:translateY(-4px); }
-
-/* 8. Award card lift */
-.aw { transition:all .4s cubic-bezier(.16,1,.3,1); }
-.aw:hover { transform:translateY(-4px); }
-
-/* 9. Beyond card lift */
-.bc { transition:all .4s cubic-bezier(.16,1,.3,1); }
-.bc:hover { transform:translateY(-4px); }
-
-/* 10. Link row slide */
-.lrow { transition:all .3s cubic-bezier(.16,1,.3,1); }
-
-/* 11. Hero stat box subtle scale */
-.stat-box { transition:all .35s cubic-bezier(.16,1,.3,1); }
-.stat-box:hover { transform:translateY(-3px) scale(1.01); }
-
-/* 12. Num cell */
-.num-cell { transition:background .35s, transform .3s cubic-bezier(.16,1,.3,1); }
-.num-cell:hover { transform:scale(1.02); z-index:1; }
-
-/* 13. Nav logo subtle pulse on load */
-@keyframes logo-in { from{opacity:0;letter-spacing:.12em} to{opacity:1;letter-spacing:.04em} }
-.logo { animation:logo-in .8s ease .2s both; }
-
-/* 14. Rec card */
-.rec-card { transition:all .4s cubic-bezier(.16,1,.3,1); }
-.rec-card:hover { transform:translateY(-4px); }
-
 /* CURSOR */
-#cur { position:fixed; width:10px; height:10px; background:#fff; border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); mix-blend-mode:difference; }
-#cur-r { position:fixed; width:36px; height:36px; border:1.5px solid #fff; border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width .25s,height .25s; mix-blend-mode:difference; }
+#cur { position:fixed; width:6px; height:6px; background:#fff; border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); }
+#cur-r { position:fixed; width:32px; height:32px; border:1px solid rgba(255,255,255,.3); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width .25s,height .25s; }
+.on-light #cur { background:#0A0A0A; }
+.on-light #cur-r { border-color:rgba(0,0,0,.2); }
 
 /* NAV */
 nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:28px 64px; transition:all .4s; }
@@ -1191,7 +1033,17 @@ document.querySelectorAll('a,button,.wc,.aw,.bc,.num-cell,.stat-box,.pill').forE
 // NAV
 window.addEventListener('scroll',()=>{ document.getElementById('nav').classList.toggle('stuck',scrollY>60); });
 
-
+// LIGHT SECTION cursor
+const lightEls = document.querySelectorAll('.light');
+const lo = new IntersectionObserver(entries=>{
+  const anyLight = [...lightEls].some(el=>{ const r=el.getBoundingClientRect(); return r.top < window.innerHeight*0.5 && r.bottom > 0; });
+  document.body.classList.toggle('on-light', anyLight);
+},{threshold:[0,0.1,0.5,1]});
+lightEls.forEach(el=>lo.observe(el));
+window.addEventListener('scroll',()=>{
+  const anyLight=[...lightEls].some(el=>{const r=el.getBoundingClientRect();return r.top<window.innerHeight*.6&&r.bottom>window.innerHeight*.4;});
+  document.body.classList.toggle('on-light',anyLight);
+},{passive:true});
 
 // REVEAL
 const ro = new IntersectionObserver(entries=>{
